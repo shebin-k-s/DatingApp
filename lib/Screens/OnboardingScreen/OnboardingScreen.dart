@@ -56,15 +56,15 @@ class Onboardingscreen extends StatelessWidget {
               ),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Column(
                     children: [
+                      const Spacer(),
                       ValueListenableBuilder(
                         valueListenable: scrollIndexNotifier,
                         builder: (context, value, child) {
                           return Column(
                             children: [
-                              const SizedBox(height: 20),
                               Text(
                                 slideList[value]['heading']!,
                                 style: const TextStyle(
@@ -130,35 +130,35 @@ class Onboardingscreen extends StatelessWidget {
                               ),
                             ),
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            'Already have an account? ',
-                            style: TextStyle(
-                              fontSize: 16,
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (ctx) =>
-                                      const Authscreen(signup: false),
+                          const SizedBox(height: 10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text(
+                                'Already have an account? ',
+                                style: TextStyle(
+                                  fontSize: 16,
                                 ),
-                              );
-                            },
-                            child: const Text(
-                              'Sign In',
-                              style: TextStyle(
-                                color: Color(0xffE94057),
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
                               ),
-                            ),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (ctx) =>
+                                          const Authscreen(signup: false),
+                                    ),
+                                  );
+                                },
+                                child: const Text(
+                                  'Sign In',
+                                  style: TextStyle(
+                                    color: Color(0xffE94057),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -169,16 +169,6 @@ class Onboardingscreen extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  void showMessage(BuildContext context, String message, bool isError) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: isError ? const Color(0xffE94057) : Colors.green,
-        duration: const Duration(seconds: 3),
       ),
     );
   }

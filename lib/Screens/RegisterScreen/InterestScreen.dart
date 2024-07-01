@@ -40,7 +40,12 @@ class InterestScreen extends StatelessWidget {
       appBar: CustomBackbutton(context),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.only(
+            bottom: 40,
+            top: 20,
+            left: 20,
+            right: 20,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -186,6 +191,8 @@ class InterestScreen extends StatelessWidget {
                           );
                         },
                       );
+                      isLoadingNotifier.value = false;
+
                     }
                   }
                 },

@@ -38,7 +38,12 @@ class ProfileRegisterScreen extends StatelessWidget {
       resizeToAvoidBottomInset: false,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.only(
+            bottom: 40,
+            top: 20,
+            left: 20,
+            right: 20,
+          ),
           child: Form(
             key: _formKey,
             child: Column(
@@ -51,7 +56,7 @@ class ProfileRegisterScreen extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 40),
+                const Spacer(),
                 Center(
                   child: Stack(
                     children: [
@@ -103,7 +108,7 @@ class ProfileRegisterScreen extends StatelessWidget {
                       final user = UserModel(
                         username:
                             '${_firstNameController.text} ${_lastNameController.text}',
-                            address: _addressController.text,
+                        address: _addressController.text,
                         dateOfBirth: dateOfBirth,
                         gender: gender,
                       );
@@ -124,7 +129,7 @@ class ProfileRegisterScreen extends StatelessWidget {
                     backgroundColor: const Color(0xffE94057),
                   ),
                   child: const Text(
-                    'Confirm',
+                    'Save',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 16,

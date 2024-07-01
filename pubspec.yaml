@@ -44,6 +44,7 @@ dependencies:
   otp_timer_button: ^1.1.1
   json_annotation: ^4.9.0
   json_serializable: ^6.7.1
+  double_back_to_close: ^2.0.0
 
 dev_dependencies:
   flutter_test:

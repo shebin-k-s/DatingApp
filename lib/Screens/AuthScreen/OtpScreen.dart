@@ -1,3 +1,4 @@
+import 'package:datingapp/Screens/MainScreen/MainScreen.dart';
 import 'package:datingapp/Screens/OnboardingScreen/OnboardingScreen.dart';
 import 'package:datingapp/Screens/RegisterScreen/ProfileRegisterScreen.dart';
 import 'package:datingapp/api/data/Auth.dart';
@@ -34,11 +35,16 @@ class Otpscreen extends StatelessWidget {
     return Scaffold(
       appBar: CustomBackbutton(context),
       body: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.only(
+          bottom: 40,
+          top: 20,
+          left: 20,
+          right: 20,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const SizedBox(height: 40),
+            const SizedBox(height: 20),
             OtpTimerButton(
               controller: controller,
               height: 60,
@@ -50,14 +56,14 @@ class Otpscreen extends StatelessWidget {
               ),
               duration: 10,
               radius: 30,
-              backgroundColor: Color(0xffE94057),
+              backgroundColor: const Color(0xffE94057),
               textColor: Colors.white,
               buttonType: ButtonType.text_button,
               loadingIndicator: const CircularProgressIndicator(
                 strokeWidth: 2,
                 color: Color(0xffE94057),
               ),
-              loadingIndicatorColor: Color(0xffE94057),
+              loadingIndicatorColor: const Color(0xffE94057),
               onPressed: () {
                 _requestOtp();
               },
@@ -104,12 +110,12 @@ class Otpscreen extends StatelessWidget {
                         margin: const EdgeInsets.symmetric(horizontal: 5),
                         decoration: BoxDecoration(
                             color: index < value.length
-                                ? Color(0xffE94057)
+                                ? const Color(0xffE94057)
                                 : Colors.white,
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
                               color: index < value.length + 1
-                                  ? Color(0xffE94057)
+                                  ? const Color(0xffE94057)
                                   : const Color(0xffE8E6EA),
                               width: 2,
                             )),
@@ -126,7 +132,7 @@ class Otpscreen extends StatelessWidget {
                     }),
               ),
             ),
-            const SizedBox(height: 40),
+            const Spacer(),
             GridView.count(
               shrinkWrap: true,
               crossAxisCount: 3,
@@ -163,7 +169,7 @@ class Otpscreen extends StatelessWidget {
                 );
               }),
             ),
-            const SizedBox(height: 20),
+            const Spacer(),
             ValueListenableBuilder(
               valueListenable: _isInputValid,
               builder: (context, value, child) {
@@ -176,7 +182,8 @@ class Otpscreen extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    backgroundColor: value ? Color(0xffE94057) : Colors.grey,
+                    backgroundColor:
+                        value ? const Color(0xffE94057) : Colors.grey,
                   ),
                   onPressed: () async {
                     if (_isInputValid.value && !isLoadingNotifier.value) {
@@ -189,13 +196,18 @@ class Otpscreen extends StatelessWidget {
                         response: response,
                         constantErrorMessage: 'Failed to verify the OTP',
                         onSuccess: () {
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (ctx) => forLogin
-                                  ? Onboardingscreen()
-                                  : ProfileRegisterScreen(),
-                            ),
-                          );
+                          if (forLogin) {
+                            Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute(builder: (ctx) => MainScreen()),
+                              (route) => false,
+                            );
+                          } else {
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                builder: (ctx) => ProfileRegisterScreen(),
+                              ),
+                            );
+                          }
                         },
                       );
                       isLoadingNotifier.value = false;
