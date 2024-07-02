@@ -13,8 +13,10 @@ class BottomNavigation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding:
-          const EdgeInsets.symmetric(vertical: 8, horizontal: 16), // Add padding here
+      padding: const EdgeInsets.symmetric(
+        vertical: 8,
+        horizontal: 16,
+      ),
       decoration: BoxDecoration(
         color: const Color(0xfff3f3f3),
         boxShadow: [
@@ -26,8 +28,8 @@ class BottomNavigation extends StatelessWidget {
         ],
       ),
       child: BottomNavigationBar(
-        backgroundColor: Colors.transparent, 
-        elevation: 0, 
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         selectedIconTheme: const IconThemeData(
           color: Color(0xffe94057),
         ),
@@ -40,7 +42,6 @@ class BottomNavigation extends StatelessWidget {
         iconSize: 28,
         selectedFontSize: 16,
         unselectedFontSize: 14,
-       
         onTap: (value) => onItemTapped(value),
         type: BottomNavigationBarType.fixed,
         items: [

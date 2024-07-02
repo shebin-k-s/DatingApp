@@ -4,54 +4,62 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onBackPressed;
   final List<Widget>? actions;
   final Widget? title;
+  final bool showBackButton;
+  final bool centerTitle;
 
   const CustomAppBar({
-    Key? key,
+    super.key,
     this.onBackPressed,
+    this.centerTitle = true,
     this.actions,
     this.title,
-  }) : super(key: key);
+    this.showBackButton = true,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return AppBar(
-      leadingWidth: 60,
-      leading: Padding(
-        padding: const EdgeInsets.only(left: 20.0, top: 8.0, bottom: 8.0),
-        child: GestureDetector(
-          onTap: onBackPressed ?? () => Navigator.of(context).pop(),
-          child: Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.2),
-                  spreadRadius: 1,
-                  blurRadius: 3,
-                  offset: Offset(0, 1),
-                ),
-              ],
-            ),
-            child: const Center(
-              child: Icon(
-                Icons.chevron_left,
-                color: Color(0xffE94057),
-                size: 34,
-              ),
-            ),
-          ),
+    return PreferredSize(
+      preferredSize: const Size.fromHeight(80),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
+        child: AppBar(
+          forceMaterialTransparency: true,
+          leading: showBackButton
+              ? GestureDetector(
+                  onTap: onBackPressed ?? () => Navigator.of(context).pop(),
+                  child: Container(
+                    margin: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.4),
+                          spreadRadius: 1,
+                          blurRadius: 3,
+                          offset: const Offset(0, 1),
+                        ),
+                      ],
+                    ),
+                    child: const Center(
+                      child: Icon(
+                        Icons.chevron_left,
+                        color: Color(0xffE94057),
+                        size: 30,
+                      ),
+                    ),
+                  ),
+                )
+              : null,
+          title: title,
+          actions: actions,
+          centerTitle: centerTitle,
+          elevation: 0,
         ),
       ),
-      title: title,
-      actions: actions,
-      backgroundColor: Colors.transparent,
-      elevation: 0,
     );
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => const Size.fromHeight(80);
 }

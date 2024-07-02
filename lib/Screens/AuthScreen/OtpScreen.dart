@@ -1,5 +1,4 @@
 import 'package:datingapp/Screens/MainScreen/MainScreen.dart';
-import 'package:datingapp/Screens/OnboardingScreen/OnboardingScreen.dart';
 import 'package:datingapp/Screens/RegisterScreen/ProfileRegisterScreen.dart';
 import 'package:datingapp/api/data/Auth.dart';
 import 'package:datingapp/widgets/ApiResponseUtil.dart';

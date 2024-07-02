@@ -192,7 +192,6 @@ class InterestScreen extends StatelessWidget {
                         },
                       );
                       isLoadingNotifier.value = false;
-
                     }
                   }
                 },

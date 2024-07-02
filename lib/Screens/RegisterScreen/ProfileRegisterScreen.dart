@@ -4,6 +4,7 @@ import 'package:datingapp/widgets/CalenderBottomSheet.dart';
 import 'package:datingapp/widgets/CustomAppBar.dart';
 import 'package:datingapp/widgets/GenderSelector.dart';
 import 'package:datingapp/widgets/TopSnackBarMessage.dart';
+import 'package:double_back_to_close/double_back_to_close.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -18,127 +19,141 @@ class ProfileRegisterScreen extends StatelessWidget {
   String gender = '';
 
   ProfileRegisterScreen({super.key});
-  bool goBack = false;
+  bool isFirstPress = true;
+
+  Future<bool> handleBackPress(BuildContext context) async {
+    if (isFirstPress) {
+      isFirstPress = false;
+      TopSnackBarMessage(
+        context: context,
+        message: 'If you go back you need to verify again.',
+        type: ContentType.info,
+      );
+      Future.delayed(const Duration(seconds: 10), () {
+        isFirstPress = true;
+      });
+      return false;
+    } else {
+      return true;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(
-        onBackPressed: () {
-          if (goBack) {
-            Navigator.of(context).pop();
-          } else {
-            goBack = true;
-            TopSnackBarMessage(
-              context: context,
-              message: 'If you go back you need to verify again.',
-              type: ContentType.info,
-            );
-          }
-        },
-      ),
-      resizeToAvoidBottomInset: false,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.only(
-            bottom: 40,
-            top: 20,
-            left: 20,
-            right: 20,
-          ),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const Text(
-                  'Profile details',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const Spacer(),
-                Center(
-                  child: Stack(
-                    children: [
-                      CircleAvatar(
-                        radius: 50,
-                        backgroundColor: Colors.grey[200],
-                        child: ClipOval(
-                          child: Image.asset(
-                            'assets/dummyprofile.png',
-                            fit: BoxFit.cover,
-                            width: 100,
-                            height: 100,
-                          ),
-                        ),
-                      ),
-                      const Positioned(
-                        right: 0,
-                        bottom: 0,
-                        child: CircleAvatar(
-                          backgroundColor: Color(0xffE94057),
-                          radius: 15,
-                          child: Icon(
-                            Icons.camera_alt,
-                            size: 15,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 40),
-                _buildTextField(_firstNameController, 'First name'),
-                const SizedBox(height: 10),
-                _buildTextField(_lastNameController, 'Last name'),
-                const SizedBox(height: 10),
-                _buildTextField(_addressController, 'Address'),
-                const SizedBox(height: 10),
-                _buildBirthdayField(context),
-                const SizedBox(height: 10),
-                _buildGenderSelector(),
-                const Spacer(),
-                ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      DateFormat dateFormat = DateFormat('dd-MM-yyyy');
-                      final dateOfBirth =
-                          dateFormat.parseStrict(_birthdayController.text);
-                      final user = UserModel(
-                        username:
-                            '${_firstNameController.text} ${_lastNameController.text}',
-                        address: _addressController.text,
-                        dateOfBirth: dateOfBirth,
-                        gender: gender,
-                      );
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (ctx) => InterestScreen(
-                            user: user,
-                          ),
-                        ),
-                      );
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 50),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    backgroundColor: const Color(0xffE94057),
-                  ),
-                  child: const Text(
-                    'Save',
+    return DoubleBack(
+      message: '',
+      onFirstBackPress: handleBackPress,
+      child: Scaffold(
+        appBar: CustomAppBar(
+          onBackPressed: () async {
+            if (await handleBackPress(context)) {
+              Navigator.of(context).pop();
+            }
+          },
+        ),
+        resizeToAvoidBottomInset: false,
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.only(
+              bottom: 40,
+              top: 20,
+              left: 20,
+              right: 20,
+            ),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Text(
+                    'Profile details',
                     style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                ),
-              ],
+                  const Spacer(),
+                  Center(
+                    child: Stack(
+                      children: [
+                        CircleAvatar(
+                          radius: 50,
+                          backgroundColor: Colors.grey[200],
+                          child: ClipOval(
+                            child: Image.asset(
+                              'assets/dummyprofile.png',
+                              fit: BoxFit.cover,
+                              width: 100,
+                              height: 100,
+                            ),
+                          ),
+                        ),
+                        const Positioned(
+                          right: 0,
+                          bottom: 0,
+                          child: CircleAvatar(
+                            backgroundColor: Color(0xffE94057),
+                            radius: 15,
+                            child: Icon(
+                              Icons.camera_alt,
+                              size: 15,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+                  _buildTextField(_firstNameController, 'First name'),
+                  const SizedBox(height: 10),
+                  _buildTextField(_lastNameController, 'Last name'),
+                  const SizedBox(height: 10),
+                  _buildTextField(_addressController, 'Address'),
+                  const SizedBox(height: 10),
+                  _buildBirthdayField(context),
+                  const SizedBox(height: 10),
+                  _buildGenderSelector(),
+                  const Spacer(),
+                  ElevatedButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        DateFormat dateFormat = DateFormat('dd-MM-yyyy');
+                        final dateOfBirth =
+                            dateFormat.parseStrict(_birthdayController.text);
+                        final user = UserModel(
+                          username:
+                              '${_firstNameController.text} ${_lastNameController.text}',
+                          address: _addressController.text,
+                          dateOfBirth: dateOfBirth,
+                          gender: gender,
+                        );
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (ctx) => InterestScreen(
+                              user: user,
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      backgroundColor: const Color(0xffE94057),
+                    ),
+                    child: const Text(
+                      'Save',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

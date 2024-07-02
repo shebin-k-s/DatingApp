@@ -114,7 +114,8 @@ class Validationscreen extends StatelessWidget {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      backgroundColor: value ? const Color(0xffE94057) : Colors.grey,
+                      backgroundColor:
+                          value ? const Color(0xffE94057) : Colors.grey,
                     ),
                     onPressed: () async {
                       if (_isInputValid.value && !isLoadingNotifier.value) {
@@ -124,8 +125,8 @@ class Validationscreen extends StatelessWidget {
                         final String phoneNumber =
                             '${_phoneCode}${_phoneNumber}';
                         if (isPhone) {
-                          response = await AuthDB()
-                              .sendOTP('', phoneNumber, forLogin);
+                          response =
+                              await AuthDB().sendOTP('', phoneNumber, forLogin);
                         } else {
                           final String email = _emailController.text;
                           response =
