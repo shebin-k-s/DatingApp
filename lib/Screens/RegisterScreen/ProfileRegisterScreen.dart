@@ -1,7 +1,7 @@
 import 'package:datingapp/Screens/RegisterScreen/InterestScreen.dart';
 import 'package:datingapp/api/models/user_model/user_model.dart';
 import 'package:datingapp/widgets/CalenderBottomSheet.dart';
-import 'package:datingapp/widgets/CustomBackbutton.dart';
+import 'package:datingapp/widgets/CustomAppBar.dart';
 import 'package:datingapp/widgets/GenderSelector.dart';
 import 'package:datingapp/widgets/TopSnackBarMessage.dart';
 import 'package:flutter/material.dart';
@@ -23,18 +23,20 @@ class ProfileRegisterScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomBackbutton(context, onPressed: () {
-        if (goBack) {
-          Navigator.of(context).pop();
-        } else {
-          goBack = true;
-          TopSnackBarMessage(
-            context: context,
-            message: 'If you go back you need to verify again.',
-            type: ContentType.info,
-          );
-        }
-      }),
+      appBar: CustomAppBar(
+        onBackPressed: () {
+          if (goBack) {
+            Navigator.of(context).pop();
+          } else {
+            goBack = true;
+            TopSnackBarMessage(
+              context: context,
+              message: 'If you go back you need to verify again.',
+              type: ContentType.info,
+            );
+          }
+        },
+      ),
       resizeToAvoidBottomInset: false,
       body: SafeArea(
         child: Padding(

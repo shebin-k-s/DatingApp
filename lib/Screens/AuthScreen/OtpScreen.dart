@@ -3,7 +3,7 @@ import 'package:datingapp/Screens/OnboardingScreen/OnboardingScreen.dart';
 import 'package:datingapp/Screens/RegisterScreen/ProfileRegisterScreen.dart';
 import 'package:datingapp/api/data/Auth.dart';
 import 'package:datingapp/widgets/ApiResponseUtil.dart';
-import 'package:datingapp/widgets/CustomBackbutton.dart';
+import 'package:datingapp/widgets/CustomAppBar.dart';
 import 'package:flutter/material.dart';
 import 'package:otp_timer_button/otp_timer_button.dart';
 
@@ -33,7 +33,7 @@ class Otpscreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomBackbutton(context),
+      appBar: const CustomAppBar(),
       body: Padding(
         padding: const EdgeInsets.only(
           bottom: 40,

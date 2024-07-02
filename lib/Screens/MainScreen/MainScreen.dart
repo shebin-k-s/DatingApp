@@ -1,5 +1,6 @@
 import 'package:datingapp/Screens/MainScreen/HomeScreen/HomeScreen.dart';
 import 'package:datingapp/widgets/BottomNavigation.dart';
+import 'package:datingapp/widgets/CustomAppBar.dart';
 import 'package:double_back_to_close/double_back_to_close.dart';
 import 'package:flutter/material.dart';
 
@@ -19,6 +20,7 @@ class MainScreen extends StatelessWidget {
       valueListenable: selectedBottomIndex,
       builder: (context, value, child) {
         return Scaffold(
+          appBar: const CustomAppBar(),
           bottomNavigationBar: BottomNavigation(
             onItemTapped: (index) {
               return selectedBottomIndex.value = index;

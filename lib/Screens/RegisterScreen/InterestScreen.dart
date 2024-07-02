@@ -2,7 +2,7 @@ import 'package:datingapp/Screens/OnboardingScreen/OnboardingScreen.dart';
 import 'package:datingapp/api/data/Auth.dart';
 import 'package:datingapp/api/models/user_model/user_model.dart';
 import 'package:datingapp/widgets/ApiResponseUtil.dart';
-import 'package:datingapp/widgets/CustomBackbutton.dart';
+import 'package:datingapp/widgets/CustomAppBar.dart';
 import 'package:datingapp/widgets/TopSnackBarMessage.dart';
 import 'package:flutter/material.dart';
 
@@ -37,7 +37,7 @@ class InterestScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomBackbutton(context),
+      appBar: const CustomAppBar(),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.only(

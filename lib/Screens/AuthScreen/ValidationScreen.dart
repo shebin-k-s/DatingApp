@@ -1,7 +1,7 @@
 import 'package:datingapp/Screens/AuthScreen/OtpScreen.dart';
 import 'package:datingapp/api/data/Auth.dart';
 import 'package:datingapp/widgets/ApiResponseUtil.dart';
-import 'package:datingapp/widgets/CustomBackbutton.dart';
+import 'package:datingapp/widgets/CustomAppBar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:intl_phone_field/phone_number.dart';
@@ -44,7 +44,7 @@ class Validationscreen extends StatelessWidget {
   Widget build(BuildContext context) {
     _validateEmail();
     return Scaffold(
-      appBar: CustomBackbutton(context),
+      appBar: const CustomAppBar(),
       resizeToAvoidBottomInset: false,
       body: SafeArea(
         child: Padding(
@@ -52,7 +52,7 @@ class Validationscreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 40),
+              const SizedBox(height: 40),
               Text(
                 isPhone ? 'My mobile' : 'My email',
                 style: const TextStyle(
@@ -60,7 +60,7 @@ class Validationscreen extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Text(
                 'Please enter your valid ${isPhone ? 'phone number' : 'email address'}. We will\nsend you a 5-digit code to verify your account.',
                 style: TextStyle(
@@ -68,7 +68,7 @@ class Validationscreen extends StatelessWidget {
                   fontSize: 16,
                 ),
               ),
-              SizedBox(height: 30),
+              const SizedBox(height: 30),
               if (isPhone)
                 IntlPhoneField(
                   decoration: const InputDecoration(
@@ -104,17 +104,17 @@ class Validationscreen extends StatelessWidget {
                   keyboardType: TextInputType.emailAddress,
                   onChanged: (_) => _validateEmail(),
                 ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ValueListenableBuilder(
                 valueListenable: _isInputValid,
                 builder: (context, value, child) {
                   return ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      minimumSize: Size(double.infinity, 50),
+                      minimumSize: const Size(double.infinity, 50),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      backgroundColor: value ? Color(0xffE94057) : Colors.grey,
+                      backgroundColor: value ? const Color(0xffE94057) : Colors.grey,
                     ),
                     onPressed: () async {
                       if (_isInputValid.value && !isLoadingNotifier.value) {

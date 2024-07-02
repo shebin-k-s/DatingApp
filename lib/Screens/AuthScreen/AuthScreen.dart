@@ -1,5 +1,5 @@
 import 'package:datingapp/Screens/AuthScreen/ValidationScreen.dart';
-import 'package:datingapp/widgets/CustomBackbutton.dart';
+import 'package:datingapp/widgets/CustomAppBar.dart';
 import 'package:flutter/material.dart';
 
 class Authscreen extends StatelessWidget {
@@ -12,7 +12,7 @@ class Authscreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomBackbutton(context),
+      appBar: const CustomAppBar(),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
