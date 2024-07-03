@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 class ActionButton extends StatelessWidget {
-  final VoidCallback onTap;
+  final Function onTap;
   final String iconPath;
 
   const ActionButton({
@@ -14,7 +14,7 @@ class ActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: () => onTap(context),
       child: Container(
         width: 45,
         height: 45,

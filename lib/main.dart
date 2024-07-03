@@ -1,4 +1,4 @@
-import 'package:datingapp/Screens/OnboardingScreen/OnboardingScreen.dart';
+import 'package:datingapp/Screens/SplashScreen/SplashScreen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
         primaryColor: Colors.white,
         splashFactory: NoSplash.splashFactory,
       ),
-      home: Onboardingscreen(),
+      home: Splashscreen(),
     );
   }
 }

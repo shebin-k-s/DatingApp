@@ -81,8 +81,9 @@ class AuthDB extends AuthApiCalls {
       }
 
       return response.statusCode ?? -1;
-    } on DioException catch (e) {
-      return e.response?.statusCode ?? -1;
+    } catch (e) {
+      print(e);
+      return -1;
     }
   }
 

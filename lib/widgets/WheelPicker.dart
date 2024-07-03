@@ -16,7 +16,7 @@ Widget WheelPicker(
           child: Text(
             items[index],
             style: TextStyle(
-              color: index == selectedItem ? Color(0xffE94057) : Colors.black,
+              color: index == selectedItem ? const Color(0xffE94057) : Colors.black,
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),

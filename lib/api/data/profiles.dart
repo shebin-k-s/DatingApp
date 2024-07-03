@@ -30,7 +30,6 @@ class ProfileDB extends ProfileApiCalls {
   Future<void> _initialize() async {
     _sharedPref = await SharedPreferences.getInstance();
     _token = _sharedPref.getString('TOKEN') ?? '';
-
     dio.options = BaseOptions(
       baseUrl: url.baseUrl,
       responseType: ResponseType.plain,
@@ -79,7 +78,7 @@ class ProfileDB extends ProfileApiCalls {
       if (limit != null) {
         urlBuilder.write('limit=$limit');
       }
-
+      print(urlBuilder.toString());
       final result = await dio.get(urlBuilder.toString());
 
       if (result.data != null && result.statusCode == 200) {
@@ -91,7 +90,7 @@ class ProfileDB extends ProfileApiCalls {
       }
     } catch (e) {
       print(e);
-      return SearchProfiles();
+      throw Exception('Failed to load profiles');
     }
   }
 }

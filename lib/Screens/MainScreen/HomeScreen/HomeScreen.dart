@@ -1,24 +1,34 @@
+import 'package:datingapp/Screens/MainScreen/ScreenModel/ScreenModel.dart';
 import 'package:datingapp/api/data/profiles.dart';
 import 'package:datingapp/api/models/search_profiles/profile.dart';
-import 'package:datingapp/api/models/search_profiles/search_profiles.dart';
+import 'package:datingapp/widgets/FilterBottomSheet.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Homescreen extends StatelessWidget {
-  ScrollController _scrollController = ScrollController();
+  Homescreen({super.key});
+
+  final ScrollController _scrollController = ScrollController();
 
   int currentPage = 1;
   bool hasNextPage = true;
 
-  ValueNotifier<List<Profile>> _profilesNotifier = ValueNotifier([]);
-  bool isLoading = false;
+  bool isLoading = true;
+  String? location;
+  int distance = 200;
+  int? minAge;
+  int? maxAge;
+  String? gender;
 
-  Future<void> _fetchProfiles() async {
+  final ValueNotifier<List<Profile>> _profilesNotifier = ValueNotifier([]);
+
+  Future<void> _fetchProfiles({isRefresh = false}) async {
+    isLoading = true;
     try {
-      final SharedPreferences _sharedPref =
-          await SharedPreferences.getInstance();
-      final address = _sharedPref.getString('ADDRESS');
-
+      if (isRefresh) {
+        currentPage = 1;
+        _profilesNotifier.value = [];
+      }
       const maxRetries = 10;
       int retryCount = 0;
       bool retry = true;
@@ -26,20 +36,22 @@ class Homescreen extends StatelessWidget {
         retry = false;
         try {
           final result = await ProfileDB().searchProfiles(
-            null,
-            null,
-            null,
-            address,
-            1000,
+            minAge,
+            maxAge,
+            gender,
+            location,
+            distance,
             currentPage,
-            20,
+            2,
           );
-
           if (result.profiles != null) {
-            print('length ${result.profiles!.length}');
-            final profiles = List<Profile>.from(_profilesNotifier.value);
-            profiles.addAll(result.profiles!);
-            _profilesNotifier.value = profiles;
+            if (isRefresh) {
+              _profilesNotifier.value = result.profiles!;
+            } else {
+              final profiles = List<Profile>.from(_profilesNotifier.value);
+              profiles.addAll(result.profiles!);
+              _profilesNotifier.value = profiles;
+            }
           }
           if (result.hasNextPage != null) {
             hasNextPage = result.hasNextPage!;
@@ -54,6 +66,8 @@ class Homescreen extends StatelessWidget {
       }
     } catch (e) {
       print('Error fetching profiles: $e');
+    } finally {
+      isLoading = false;
     }
   }
 
@@ -68,36 +82,69 @@ class Homescreen extends StatelessWidget {
   }
 
   void _onScroll() async {
-    print('nex ${hasNextPage}');
     if (_scrollController.position.pixels ==
         _scrollController.position.maxScrollExtent) {
-      print(isLoading);
-      print('hkjjere');
-      print(hasNextPage);
       if (!isLoading && hasNextPage) {
-        isLoading = true;
+        print('object');
         await _fetchProfiles();
-        isLoading = false;
       }
+    }
+  }
+
+  Future<void> handleFilter(BuildContext context) async {
+    final filters = await FilterBottomSheet(
+      context: context,
+      interestedIn: gender ?? 'Male',
+      distance: distance.toDouble(),
+      ageRange:
+          RangeValues(minAge?.toDouble() ?? 18, maxAge?.toDouble() ?? 100),
+      location: location ?? '',
+    );
+    if (filters != null) {
+      gender = filters['interestedIn'];
+      final ageRange = filters['ageRange'];
+      minAge = ageRange.start.toInt();
+      maxAge = ageRange.end.toInt();
+      location = filters['location'];
+      distance = filters['distance'].toInt();
+
+      screens[0].subtitle!.value = location;
+      await _fetchProfiles(isRefresh: true);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     _scrollController.addListener(_onScroll);
-    WidgetsBinding.instance.addPostFrameCallback((_) => _fetchProfiles());
-    return ValueListenableBuilder(
-        valueListenable: _profilesNotifier,
-        builder: (context, value, child) {
-          if (value.isNotEmpty) {
-            int itemCount = hasNextPage ? value.length + 1 : value.length;
-            return ListView.builder(
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final SharedPreferences _sharedPref =
+          await SharedPreferences.getInstance();
+      final address = _sharedPref.getString('ADDRESS');
+      location = address?.split(',').first;
+      screens[0].subtitle!.value = location;
+      _fetchProfiles();
+    });
+
+    return ValueListenableBuilder<List<Profile>>(
+      valueListenable: _profilesNotifier,
+      builder: (context, profiles, child) {
+        if (isLoading && profiles.isEmpty) {
+          return const Center(
+            child: CircularProgressIndicator(
+              color: Colors.red,
+            ),
+          );
+        } else if (profiles.isNotEmpty) {
+          int itemCount = hasNextPage ? profiles.length + 1 : profiles.length;
+          return RefreshIndicator(
+            onRefresh: () => _fetchProfiles(isRefresh: true),
+            child: ListView.builder(
               controller: _scrollController,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
               itemCount: itemCount,
               itemBuilder: (context, index) {
-                if (index < value.length) {
-                  final profile = value[index];
+                if (index < profiles.length) {
+                  final profile = profiles[index];
                   final age =
                       calculateAge(profile.dateOfBirth ?? DateTime.now());
 
@@ -111,20 +158,28 @@ class Homescreen extends StatelessWidget {
                   );
                 } else {
                   return const Center(
-                      child: CircularProgressIndicator(
-                    color: Colors.red,
-                  ));
+                    child: CircularProgressIndicator(
+                      color: Colors.red,
+                    ),
+                  );
                 }
               },
-            );
-          } else {
-            return const Center(
-              child: CircularProgressIndicator(
-                color: Colors.red,
+            ),
+          );
+        } else {
+          return const Center(
+            child: Text(
+              'No Profiles found',
+              style: TextStyle(
+                fontSize: 20,
+                color: Color(0xffE94057),
+                fontWeight: FontWeight.bold
               ),
-            );
-          }
-        });
+            ),
+          );
+        }
+      },
+    );
   }
 }
 
@@ -136,6 +191,7 @@ class ProfileCard extends StatelessWidget {
   final String distance;
 
   ProfileCard({
+    super.key,
     required this.name,
     required this.age,
     required this.address,

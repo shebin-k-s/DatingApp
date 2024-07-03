@@ -1,9 +1,10 @@
 import 'dart:io';
 
-import 'package:datingapp/Screens/MainScreen/HomeScreen/HomeScreen.dart';
 import 'package:datingapp/Screens/MainScreen/ScreenModel/ScreenModel.dart';
+import 'package:datingapp/Screens/SplashScreen/SplashScreen.dart';
 import 'package:datingapp/widgets/BottomNavigation.dart';
 import 'package:datingapp/widgets/CustomAppBar.dart';
+import 'package:datingapp/widgets/FilterBottomSheet.dart';
 import 'package:datingapp/widgets/TopSnackBarMessage.dart';
 import 'package:double_back_to_close/double_back_to_close.dart';
 import 'package:flutter/material.dart';
@@ -55,18 +56,35 @@ class MainScreen extends StatelessWidget {
                   Text(
                     currentScreen.title!,
                     style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xffE94057)),
                   ),
                 if (currentScreen.subtitle != null)
                   ValueListenableBuilder<String?>(
                     valueListenable: currentScreen.subtitle!,
                     builder: (context, subtitle, child) {
-                      return Text(
-                        subtitle ?? '',
-                        style: const TextStyle(
-                          fontSize: 14,
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (subtitle != null && subtitle.isNotEmpty)
+                              const Icon(
+                                Icons.place,
+                                size: 18,
+                                color: Colors.black,
+                              ),
+                            if (subtitle != null && subtitle.isNotEmpty)
+                              const SizedBox(width: 4),
+                            Text(
+                              subtitle ?? '',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
                       );
                     },
