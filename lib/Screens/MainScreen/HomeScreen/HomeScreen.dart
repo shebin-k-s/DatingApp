@@ -1,6 +1,7 @@
 import 'package:datingapp/Screens/MainScreen/ScreenModel/ScreenModel.dart';
 import 'package:datingapp/api/data/profiles.dart';
 import 'package:datingapp/api/models/search_profiles/profile.dart';
+import 'package:datingapp/main.dart';
 import 'package:datingapp/widgets/FilterBottomSheet.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,6 +22,144 @@ class Homescreen extends StatelessWidget {
   String? gender;
 
   final ValueNotifier<List<Profile>> _profilesNotifier = ValueNotifier([]);
+  final ValueNotifier<List<String>> likedProfilesIdNotifier = ValueNotifier([]);
+  final ValueNotifier<List<String>> favouriteProfilesIdNotifier =
+      ValueNotifier([]);
+
+  @override
+  Widget build(BuildContext context) {
+    _scrollController.addListener(_onScroll);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final SharedPreferences _sharedPref =
+          await SharedPreferences.getInstance();
+      final address = _sharedPref.getString('ADDRESS');
+      final profileDB = ProfileDB();
+      likedProfilesIdNotifier.value =
+          await profileDB.getListFromSharedPreferences('LIKEDPROFILES');
+      favouriteProfilesIdNotifier.value =
+          await profileDB.getListFromSharedPreferences('FAVOURITEPROFILES');
+      location = address?.split(',').first;
+      screens[0].subtitle!.value = location;
+      _fetchProfiles();
+    });
+
+    return ValueListenableBuilder<List<Profile>>(
+      valueListenable: _profilesNotifier,
+      builder: (context, profiles, child) {
+        if (isLoading && profiles.isEmpty) {
+          return const Center(
+            child: CircularProgressIndicator(
+              color: Colors.red,
+            ),
+          );
+        } else if (profiles.isNotEmpty) {
+          int itemCount = hasNextPage ? profiles.length + 1 : profiles.length;
+          return RefreshIndicator(
+            onRefresh: () => _fetchProfiles(isRefresh: true),
+            child: ListView.builder(
+              controller: _scrollController,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+              itemCount: itemCount,
+              itemBuilder: (context, index) {
+                if (index < profiles.length) {
+                  final profile = profiles[index];
+                  final age =
+                      calculateAge(profile.dateOfBirth ?? DateTime.now());
+                  return ValueListenableBuilder(
+                      valueListenable: favouriteProfilesIdNotifier,
+                      builder: (context, favouriteProfilesId, child) {
+                        return ValueListenableBuilder(
+                          valueListenable: likedProfilesIdNotifier,
+                          builder: (context, likedProfilesId, child) {
+                            bool isLiked = likedProfilesId.contains(profile.id);
+                            bool isFavourite =
+                                favouriteProfilesId.contains(profile.id);
+                            return ProfileCard(
+                              id: profile.id ?? '',
+                              name: profile.username ?? 'Username',
+                              isLiked: isLiked,
+                              isFavourite: isFavourite,
+                              age: age,
+                              address: profile.address ?? '',
+                              imageUrl: profile.profilePic ??
+                                  'https://pbs.twimg.com/media/FjU2lkcWYAgNG6d.jpg',
+                              distance: profile.distanceInKm?.toString() ?? '',
+                              onLikePress: () async {
+                                bool status;
+                                final profileDB = ProfileDB();
+                                print('isLiked ${isLiked}');
+                                final likedIds =
+                                    List<String>.from(likedProfilesId);
+                                if (isLiked) {
+                                  likedIds.remove(profile.id!);
+                                  likedProfilesIdNotifier.value = likedIds;
+                                  status = await profileDB
+                                      .unlikeProfile(profile.id ?? '');
+                                } else {
+                                  likedIds.add(profile.id!);
+                                  likedProfilesIdNotifier.value = likedIds;
+                                  favouriteProfilesIdNotifier.value
+                                      .remove(profile.id);
+                                  status = await profileDB
+                                      .likeProfile(profile.id ?? '');
+                                }
+                                print('status ${status}');
+                                if (status) {
+                                  await profileDB.updateLikedProfiles(
+                                      profile.id ?? '', !isLiked);
+                                }
+                              },
+                              onFavouritePress: () async {
+                                bool status;
+                                final profileDB = ProfileDB();
+                                final favouriteIds =
+                                    List<String>.from(favouriteProfilesId);
+                                if (isFavourite) {
+                                  favouriteIds.remove(profile.id!);
+                                  favouriteProfilesIdNotifier.value = favouriteIds;
+                                  status = await profileDB
+                                      .unfavoriteProfile(profile.id ?? '');
+                                } else {
+                                  favouriteIds.add(profile.id!);
+                                  favouriteProfilesIdNotifier.value = favouriteIds;
+                                  status = await profileDB
+                                      .favoriteProfile(profile.id ?? '');
+                                }
+                                if (status) {
+                                  await profileDB.updateFavoriteProfiles(
+                                    profile.id ?? '',
+                                    !isFavourite,
+                                  );
+                                }
+                              },
+                            );
+                          },
+                        );
+                      });
+                } else {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: Colors.red,
+                    ),
+                  );
+                }
+              },
+            ),
+          );
+        } else {
+          return const Center(
+            child: Text(
+              'No Profiles found',
+              style: TextStyle(
+                  fontSize: 20,
+                  color: Color(0xffE94057),
+                  fontWeight: FontWeight.bold),
+            ),
+          );
+        }
+      },
+    );
+  }
 
   Future<void> _fetchProfiles({isRefresh = false}) async {
     isLoading = true;
@@ -42,7 +181,7 @@ class Homescreen extends StatelessWidget {
             location,
             distance,
             currentPage,
-            2,
+            20,
           );
           if (result.profiles != null) {
             if (isRefresh) {
@@ -85,7 +224,6 @@ class Homescreen extends StatelessWidget {
     if (_scrollController.position.pixels ==
         _scrollController.position.maxScrollExtent) {
       if (!isLoading && hasNextPage) {
-        print('object');
         await _fetchProfiles();
       }
     }
@@ -112,91 +250,31 @@ class Homescreen extends StatelessWidget {
       await _fetchProfiles(isRefresh: true);
     }
   }
-
-  @override
-  Widget build(BuildContext context) {
-    _scrollController.addListener(_onScroll);
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final SharedPreferences _sharedPref =
-          await SharedPreferences.getInstance();
-      final address = _sharedPref.getString('ADDRESS');
-      location = address?.split(',').first;
-      screens[0].subtitle!.value = location;
-      _fetchProfiles();
-    });
-
-    return ValueListenableBuilder<List<Profile>>(
-      valueListenable: _profilesNotifier,
-      builder: (context, profiles, child) {
-        if (isLoading && profiles.isEmpty) {
-          return const Center(
-            child: CircularProgressIndicator(
-              color: Colors.red,
-            ),
-          );
-        } else if (profiles.isNotEmpty) {
-          int itemCount = hasNextPage ? profiles.length + 1 : profiles.length;
-          return RefreshIndicator(
-            onRefresh: () => _fetchProfiles(isRefresh: true),
-            child: ListView.builder(
-              controller: _scrollController,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-              itemCount: itemCount,
-              itemBuilder: (context, index) {
-                if (index < profiles.length) {
-                  final profile = profiles[index];
-                  final age =
-                      calculateAge(profile.dateOfBirth ?? DateTime.now());
-
-                  return ProfileCard(
-                    name: profile.username ?? 'Username',
-                    age: age,
-                    address: profile.address ?? '',
-                    imageUrl: profile.profilePic ??
-                        'https://pbs.twimg.com/media/FjU2lkcWYAgNG6d.jpg',
-                    distance: profile.distanceInKm?.toString() ?? '',
-                  );
-                } else {
-                  return const Center(
-                    child: CircularProgressIndicator(
-                      color: Colors.red,
-                    ),
-                  );
-                }
-              },
-            ),
-          );
-        } else {
-          return const Center(
-            child: Text(
-              'No Profiles found',
-              style: TextStyle(
-                fontSize: 20,
-                color: Color(0xffE94057),
-                fontWeight: FontWeight.bold
-              ),
-            ),
-          );
-        }
-      },
-    );
-  }
 }
 
 class ProfileCard extends StatelessWidget {
+  final String id;
   final String name;
   final int age;
   final String address;
   final String imageUrl;
   final String distance;
-
-  ProfileCard({
+  final bool isLiked;
+  final bool isFavourite;
+  final VoidCallback onLikePress;
+  final VoidCallback onFavouritePress;
+  const ProfileCard({
     super.key,
     required this.name,
     required this.age,
     required this.address,
     required this.imageUrl,
     required this.distance,
+    required this.isLiked,
+    required this.isFavourite,
+    required this.id,
+    required this.onLikePress,
+    required this.onFavouritePress,
   });
 
   @override
@@ -282,25 +360,20 @@ class ProfileCard extends StatelessWidget {
                     Row(
                       children: [
                         IconButton(
-                          icon: const Icon(
-                            Icons.favorite_border,
-                            color: Colors.white,
+                          icon: Icon(
+                            isLiked ? Icons.favorite : Icons.favorite_border,
+                            color: isLiked ? kColor : Colors.white,
                             size: 32,
                           ),
-                          onPressed: () {
-                            print('like');
-                          },
+                          onPressed: () => onLikePress(),
                         ),
                         IconButton(
-                          icon: const Icon(
-                            Icons.star_border,
-                            color: Colors.white,
+                          icon: Icon(
+                            isFavourite ? Icons.star : Icons.star_border,
+                            color: isFavourite ? kColor : Colors.white,
                             size: 32,
                           ),
-                          onPressed: () {
-                            print('favourite');
-                            // Add favourite functionality here
-                          },
+                          onPressed: () => onFavouritePress(),
                         ),
                       ],
                     ),

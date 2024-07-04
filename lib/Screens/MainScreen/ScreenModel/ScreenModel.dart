@@ -1,6 +1,5 @@
 import 'package:datingapp/Screens/MainScreen/HomeScreen/HomeScreen.dart';
 import 'package:datingapp/widgets/ActionButton.dart';
-import 'package:datingapp/widgets/FilterBottomSheet.dart';
 import 'package:flutter/material.dart';
 
 class ScreenModel {

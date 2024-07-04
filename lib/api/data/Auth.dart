@@ -47,18 +47,20 @@ class AuthDB extends AuthApiCalls {
     for (var entry in userJson.entries) {
       if (entry.value != null) {
         if (entry.value is DateTime) {
-          await _setSharedPref(entry.key.toUpperCase(),
+          await _sharedPrefs.setString(entry.key.toUpperCase(),
               (entry.value as DateTime).toIso8601String());
         } else if (entry.value is List) {
-          await _setSharedPref(
-              entry.key.toUpperCase(), jsonEncode(entry.value));
+          await _sharedPrefs.setStringList(entry.key.toUpperCase(),
+              (entry.value as List).map((e) => e.toString()).toList());
         } else {
-          await _setSharedPref(entry.key.toUpperCase(), entry.value.toString());
+          await _sharedPrefs.setString(
+              entry.key.toUpperCase(), entry.value.toString());
         }
       }
     }
   }
 
+  
   @override
   Future<int> sendOTP(String email, String phoneNumber, bool forLogin) async {
     await _ensureInitialized();

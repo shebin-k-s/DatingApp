@@ -1,10 +1,6 @@
-import 'dart:io';
-
 import 'package:datingapp/Screens/MainScreen/ScreenModel/ScreenModel.dart';
-import 'package:datingapp/Screens/SplashScreen/SplashScreen.dart';
 import 'package:datingapp/widgets/BottomNavigation.dart';
 import 'package:datingapp/widgets/CustomAppBar.dart';
-import 'package:datingapp/widgets/FilterBottomSheet.dart';
 import 'package:datingapp/widgets/TopSnackBarMessage.dart';
 import 'package:double_back_to_close/double_back_to_close.dart';
 import 'package:flutter/material.dart';

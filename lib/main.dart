@@ -1,6 +1,8 @@
 import 'package:datingapp/Screens/SplashScreen/SplashScreen.dart';
 import 'package:flutter/material.dart';
 
+
+const kColor = Color(0xffE94057);
 void main() {
   runApp(const MyApp());
 }

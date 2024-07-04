@@ -21,22 +21,20 @@ class _SplashscreenState extends State<Splashscreen> {
   Widget build(BuildContext context) {
     return const Scaffold(
       body: Center(
-        child: Text(
-          'CONNECT ME',
-          style: TextStyle(
+          child: Text(
+        'CONNECT ME',
+        style: TextStyle(
             color: Color(0xffE94057),
             fontSize: 32,
-            fontWeight: FontWeight.bold
-          ),
-        )
-      ),
+            fontWeight: FontWeight.bold),
+      )),
     );
   }
 
   void isUserLogin() async {
-    final _sharedPred = await SharedPreferences.getInstance();
+    final _sharedPref = await SharedPreferences.getInstance();
+    final _token = await _sharedPref.getString('TOKEN');
 
-    final _token = await _sharedPred.getString('TOKEN');
     await Future.delayed(const Duration(milliseconds: 3000));
     print(_token);
 
@@ -45,6 +43,7 @@ class _SplashscreenState extends State<Splashscreen> {
         MaterialPageRoute(
           builder: (ctx) => MainScreen(),
         ),
+
       );
     } else {
       Navigator.of(context).pushReplacement(
