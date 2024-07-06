@@ -33,8 +33,8 @@ class _SplashscreenState extends State<Splashscreen> {
 
   void isUserLogin() async {
     final _sharedPref = await SharedPreferences.getInstance();
+    // _sharedPref.clear();
     final _token = await _sharedPref.getString('TOKEN');
-
     await Future.delayed(const Duration(milliseconds: 3000));
     print(_token);
 
@@ -43,7 +43,6 @@ class _SplashscreenState extends State<Splashscreen> {
         MaterialPageRoute(
           builder: (ctx) => MainScreen(),
         ),
-
       );
     } else {
       Navigator.of(context).pushReplacement(

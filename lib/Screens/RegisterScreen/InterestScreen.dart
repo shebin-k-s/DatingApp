@@ -1,3 +1,4 @@
+import 'package:datingapp/Screens/MainScreen/MainScreen.dart';
 import 'package:datingapp/Screens/OnboardingScreen/OnboardingScreen.dart';
 import 'package:datingapp/api/data/Auth.dart';
 import 'package:datingapp/api/models/user_model/user_model.dart';
@@ -184,10 +185,11 @@ class InterestScreen extends StatelessWidget {
                         response: response,
                         constantErrorMessage: 'Failed to Register',
                         onSuccess: () {
-                          Navigator.of(context).pushReplacement(
+                          Navigator.of(context).pushAndRemoveUntil(
                             MaterialPageRoute(
-                              builder: (ctx) => Onboardingscreen(),
+                              builder: (ctx) => MainScreen(),
                             ),
+                            (route) => false,
                           );
                         },
                       );

@@ -1,10 +1,13 @@
 class Url {
-  String baseUrl = "http://192.168.2.24:3000/";
+  String baseUrl = "http://172.16.34.24:3000/";
 
   // Authentication
   String sendOTP = "api/v1/auth/sendOTP";
   String verifyOTP = "api/v1/auth/verifyOTP";
   String registerUser = "api/v1/auth/registerUser";
+
+  //upload Image
+  String uploadImage = "api/v1/upload";
 
   // Messages
   String sendMessage = "api/v1/message/send";
@@ -19,6 +22,7 @@ class Url {
   String getLikedProfiles = "api/v1/profile/likedProfiles";
   String editProfile = "api/v1/profile/edit";
   String searchProfiles = "api/v1/profile/search";
+  String profilesLikedMe = 'api/v1/profile/profilelikedme';
 
   // Favourites
   String getFavouriteProfiles = "api/v1/profile/favourite";

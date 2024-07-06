@@ -1,8 +1,10 @@
 import 'package:datingapp/Screens/MainScreen/ScreenModel/ScreenModel.dart';
+import 'package:datingapp/api/Url.dart';
 import 'package:datingapp/api/data/profiles.dart';
 import 'package:datingapp/api/models/search_profiles/profile.dart';
 import 'package:datingapp/main.dart';
 import 'package:datingapp/widgets/FilterBottomSheet.dart';
+import 'package:datingapp/widgets/ProfileActionButton.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -30,16 +32,19 @@ class Homescreen extends StatelessWidget {
   Widget build(BuildContext context) {
     _scrollController.addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final SharedPreferences _sharedPref =
-          await SharedPreferences.getInstance();
-      final address = _sharedPref.getString('ADDRESS');
       final profileDB = ProfileDB();
+      if (location == null) {
+        final SharedPreferences _sharedPref =
+            await SharedPreferences.getInstance();
+        final address = _sharedPref.getString('ADDRESS');
+        location = address?.split(',').first;
+        screens[0].subtitle!.value = location;
+      }
       likedProfilesIdNotifier.value =
           await profileDB.getListFromSharedPreferences('LIKEDPROFILES');
       favouriteProfilesIdNotifier.value =
           await profileDB.getListFromSharedPreferences('FAVOURITEPROFILES');
-      location = address?.split(',').first;
-      screens[0].subtitle!.value = location;
+
       _fetchProfiles();
     });
 
@@ -55,8 +60,12 @@ class Homescreen extends StatelessWidget {
         } else if (profiles.isNotEmpty) {
           int itemCount = hasNextPage ? profiles.length + 1 : profiles.length;
           return RefreshIndicator(
-            onRefresh: () => _fetchProfiles(isRefresh: true),
+            onRefresh: () async {
+              hasNextPage = true;
+              await _fetchProfiles(isRefresh: true);
+            },
             child: ListView.builder(
+              physics: const AlwaysScrollableScrollPhysics(),
               controller: _scrollController,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
               itemCount: itemCount,
@@ -87,7 +96,6 @@ class Homescreen extends StatelessWidget {
                               onLikePress: () async {
                                 bool status;
                                 final profileDB = ProfileDB();
-                                print('isLiked ${isLiked}');
                                 final likedIds =
                                     List<String>.from(likedProfilesId);
                                 if (isLiked) {
@@ -103,7 +111,6 @@ class Homescreen extends StatelessWidget {
                                   status = await profileDB
                                       .likeProfile(profile.id ?? '');
                                 }
-                                print('status ${status}');
                                 if (status) {
                                   await profileDB.updateLikedProfiles(
                                       profile.id ?? '', !isLiked);
@@ -116,12 +123,14 @@ class Homescreen extends StatelessWidget {
                                     List<String>.from(favouriteProfilesId);
                                 if (isFavourite) {
                                   favouriteIds.remove(profile.id!);
-                                  favouriteProfilesIdNotifier.value = favouriteIds;
+                                  favouriteProfilesIdNotifier.value =
+                                      favouriteIds;
                                   status = await profileDB
                                       .unfavoriteProfile(profile.id ?? '');
                                 } else {
                                   favouriteIds.add(profile.id!);
-                                  favouriteProfilesIdNotifier.value = favouriteIds;
+                                  favouriteProfilesIdNotifier.value =
+                                      favouriteIds;
                                   status = await profileDB
                                       .favoriteProfile(profile.id ?? '');
                                 }
@@ -163,50 +172,54 @@ class Homescreen extends StatelessWidget {
 
   Future<void> _fetchProfiles({isRefresh = false}) async {
     isLoading = true;
-    try {
-      if (isRefresh) {
-        currentPage = 1;
-        _profilesNotifier.value = [];
-      }
-      const maxRetries = 10;
-      int retryCount = 0;
-      bool retry = true;
-      while (retry && retryCount < maxRetries) {
-        retry = false;
-        try {
-          final result = await ProfileDB().searchProfiles(
-            minAge,
-            maxAge,
-            gender,
-            location,
-            distance,
-            currentPage,
-            20,
-          );
-          if (result.profiles != null) {
-            if (isRefresh) {
-              _profilesNotifier.value = result.profiles!;
-            } else {
-              final profiles = List<Profile>.from(_profilesNotifier.value);
-              profiles.addAll(result.profiles!);
-              _profilesNotifier.value = profiles;
-            }
-          }
-          if (result.hasNextPage != null) {
-            hasNextPage = result.hasNextPage!;
-            currentPage++;
-          }
-        } catch (e) {
-          print('Error fetching profiles: $e');
-          retry = true;
-          retryCount++;
-          await Future.delayed(Duration(seconds: retryCount));
+    if (hasNextPage) {
+      try {
+        if (isRefresh) {
+          currentPage = 1;
+          _profilesNotifier.value = [];
         }
+        const maxRetries = 10;
+        int retryCount = 0;
+        bool retry = true;
+        while (retry && retryCount < maxRetries) {
+          retry = false;
+          try {
+            final result = await ProfileDB().searchProfiles(
+              minAge,
+              maxAge,
+              gender == 'Any' ? null : gender,
+              location,
+              distance,
+              currentPage,
+              20,
+            );
+            if (result.profiles != null) {
+              if (isRefresh) {
+                _profilesNotifier.value = result.profiles!;
+              } else {
+                final profiles = List<Profile>.from(_profilesNotifier.value);
+                profiles.addAll(result.profiles!);
+                _profilesNotifier.value = profiles;
+              }
+            }
+            if (result.hasNextPage != null) {
+              hasNextPage = result.hasNextPage!;
+              if (hasNextPage) {
+                currentPage++;
+              }
+            }
+          } catch (e) {
+            print('Error fetching profiles: $e');
+            retry = true;
+            retryCount++;
+            await Future.delayed(Duration(seconds: retryCount));
+          }
+        }
+      } catch (e) {
+        print('Error fetching profiles: $e');
+      } finally {
+        isLoading = false;
       }
-    } catch (e) {
-      print('Error fetching profiles: $e');
-    } finally {
-      isLoading = false;
     }
   }
 
@@ -232,7 +245,7 @@ class Homescreen extends StatelessWidget {
   Future<void> handleFilter(BuildContext context) async {
     final filters = await FilterBottomSheet(
       context: context,
-      interestedIn: gender ?? 'Male',
+      interestedIn: gender ?? 'Any',
       distance: distance.toDouble(),
       ageRange:
           RangeValues(minAge?.toDouble() ?? 18, maxAge?.toDouble() ?? 100),
@@ -247,6 +260,7 @@ class Homescreen extends StatelessWidget {
       distance = filters['distance'].toInt();
 
       screens[0].subtitle!.value = location;
+      hasNextPage = true;
       await _fetchProfiles(isRefresh: true);
     }
   }
@@ -290,96 +304,80 @@ class ProfileCard extends StatelessWidget {
       onDoubleTap: () {},
       child: Container(
         margin: const EdgeInsets.only(bottom: 24),
+        height: 450,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.3),
-              spreadRadius: 2,
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(24),
           child: Stack(
+            fit: StackFit.expand,
             children: [
               Image.network(
-                imageUrl,
-                height: 450,
-                width: double.infinity,
+                '${Url().baseUrl}$imageUrl',
                 fit: BoxFit.cover,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return const Center(child: CircularProgressIndicator());
+                },
+                errorBuilder: (context, error, stackTrace) {
+                  return const Center(child: Icon(Icons.error));
+                },
               ),
-              Positioned.fill(
+
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
                 child: Container(
+                  padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.transparent,
-                        Colors.black.withOpacity(0.3),
+                    color: Colors.black.withOpacity(0.4),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '$name, $age',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              address,
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.8),
+                                fontSize: 18,
+                              ),
+                            ),
+                            ProfileActionButton(
+                              icon: isLiked
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
+                              color: isLiked ? Colors.red : Colors.white,
+                              onPressed: onLikePress,
+                            ),
+                            ProfileActionButton(
+                              icon:
+                                  isFavourite ? Icons.star : Icons.star_border,
+                              color: isFavourite ? Colors.amber : Colors.white,
+                              onPressed: onFavouritePress,
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
                 ),
               ),
-              Positioned(
-                left: 20,
-                bottom: 20,
-                right: 20,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            '$name, $age',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            address,
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.8),
-                              fontSize: 18,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: Icon(
-                            isLiked ? Icons.favorite : Icons.favorite_border,
-                            color: isLiked ? kColor : Colors.white,
-                            size: 32,
-                          ),
-                          onPressed: () => onLikePress(),
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            isFavourite ? Icons.star : Icons.star_border,
-                            color: isFavourite ? kColor : Colors.white,
-                            size: 32,
-                          ),
-                          onPressed: () => onFavouritePress(),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+              // Distance indicator
               Positioned(
                 right: 20,
                 top: 20,

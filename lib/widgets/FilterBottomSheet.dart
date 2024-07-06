@@ -103,8 +103,8 @@ class _FilterBottomSheetContentState extends State<FilterBottomSheetContent> {
                     setState(() {
                       distance = 50;
                       ageRange = const RangeValues(18, 40);
-                      interestedIn = 'Male';
-                      _locationController.clear();
+                      interestedIn = 'Any';
+                      _locationController.text = widget.location;
                     });
                   },
                 ),
@@ -119,6 +119,8 @@ class _FilterBottomSheetContentState extends State<FilterBottomSheetContent> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
+                _buildInterestButton('Any'),
+                const SizedBox(width: 8),
                 _buildInterestButton('Male'),
                 const SizedBox(width: 8),
                 _buildInterestButton('Female'),

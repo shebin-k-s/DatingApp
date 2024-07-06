@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:datingapp/Screens/RegisterScreen/InterestScreen.dart';
+import 'package:datingapp/api/data/Auth.dart';
 import 'package:datingapp/api/models/user_model/user_model.dart';
 import 'package:datingapp/widgets/CalenderBottomSheet.dart';
 import 'package:datingapp/widgets/CustomAppBar.dart';
@@ -6,9 +9,10 @@ import 'package:datingapp/widgets/GenderSelector.dart';
 import 'package:datingapp/widgets/TopSnackBarMessage.dart';
 import 'package:double_back_to_close/double_back_to_close.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
-// ignore: must_be_immutable
 class ProfileRegisterScreen extends StatelessWidget {
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
@@ -20,6 +24,29 @@ class ProfileRegisterScreen extends StatelessWidget {
 
   ProfileRegisterScreen({super.key});
   bool isFirstPress = true;
+  final ValueNotifier<File?> _imageNotifier = ValueNotifier<File?>(null);
+  final ImagePicker _picker = ImagePicker();
+  String? imgUrl = '';
+
+  Future<void> getImage(BuildContext context) async {
+    try {
+      final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        _imageNotifier.value = File(pickedFile.path);
+
+        imgUrl = await AuthDB().uploadImage(_imageNotifier.value!);
+      } else {
+        print('No image selected.');
+      }
+    } catch (e) {
+      print('Error picking image: $e');
+      TopSnackBarMessage(
+        context: context,
+        message: 'Failed to upload image',
+        type: ContentType.error,
+      );
+    }
+  }
 
   Future<bool> handleBackPress(BuildContext context) async {
     if (isFirstPress) {
@@ -78,13 +105,27 @@ class ProfileRegisterScreen extends StatelessWidget {
                       children: [
                         CircleAvatar(
                           radius: 50,
-                          backgroundColor: Colors.grey[200],
-                          child: ClipOval(
-                            child: Image.asset(
-                              'assets/dummyprofile.png',
-                              fit: BoxFit.cover,
-                              width: 100,
-                              height: 100,
+                          child: GestureDetector(
+                            onTap: () => getImage(context),
+                            child: ClipOval(
+                              child: ValueListenableBuilder<File?>(
+                                valueListenable: _imageNotifier,
+                                builder: (context, image, _) {
+                                  return image != null
+                                      ? Image.file(
+                                          image,
+                                          fit: BoxFit.cover,
+                                          width: 100,
+                                          height: 100,
+                                        )
+                                      : Image.asset(
+                                          'assets/dummyprofile.png',
+                                          fit: BoxFit.cover,
+                                          width: 100,
+                                          height: 100,
+                                        );
+                                },
+                              ),
                             ),
                           ),
                         ),
@@ -127,6 +168,7 @@ class ProfileRegisterScreen extends StatelessWidget {
                           address: _addressController.text,
                           dateOfBirth: dateOfBirth,
                           gender: gender,
+                          profilePic: imgUrl,
                         );
                         Navigator.of(context).push(
                           MaterialPageRoute(

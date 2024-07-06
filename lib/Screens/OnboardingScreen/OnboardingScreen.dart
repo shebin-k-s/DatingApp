@@ -1,5 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:datingapp/Screens/AuthScreen/AuthScreen.dart';
+import 'package:datingapp/api/Url.dart';
 import 'package:flutter/material.dart';
 
 class Onboardingscreen extends StatelessWidget {

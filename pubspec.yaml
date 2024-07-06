@@ -46,6 +46,7 @@ dependencies:
   json_serializable: ^6.7.1
   double_back_to_close: ^2.0.0
   flutter_svg:
+  image_picker: ^1.1.2
 
 dev_dependencies:
   flutter_test:

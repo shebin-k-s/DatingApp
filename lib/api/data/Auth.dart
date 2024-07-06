@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:datingapp/api/Url.dart';
 import 'package:datingapp/api/models/user_model/user_model.dart';
 import 'package:dio/dio.dart';
@@ -60,7 +61,6 @@ class AuthDB extends AuthApiCalls {
     }
   }
 
-  
   @override
   Future<int> sendOTP(String email, String phoneNumber, bool forLogin) async {
     await _ensureInitialized();
@@ -145,6 +145,32 @@ class AuthDB extends AuthApiCalls {
       return response.statusCode ?? -1;
     } on DioException catch (e) {
       return e.response?.statusCode ?? -1;
+    }
+  }
+
+  Future<String?> uploadImage(File image) async {
+    await _ensureInitialized();
+    try {
+      String fileName = image.path.split('/').last;
+      FormData formData = FormData.fromMap({
+        "image": await MultipartFile.fromFile(image.path, filename: fileName),
+      });
+
+      final response = await dio.post(
+        url.uploadImage,
+        data: formData,
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.data);
+        final path = responseData['file']['path'];
+        return path;
+      } else {
+        throw Exception('Failed to upload image');
+      }
+    } catch (e) {
+      print('Error uploading image: $e');
+      return null;
     }
   }
 

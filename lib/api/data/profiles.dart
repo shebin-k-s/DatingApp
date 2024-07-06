@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:datingapp/api/Url.dart';
+import 'package:datingapp/api/models/profiles_liked_me/profiles_liked_me.dart';
 import 'package:datingapp/api/models/search_profiles/search_profiles.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -14,6 +15,7 @@ abstract class ProfileApiCalls {
     int? page,
     int? limit,
   );
+  Future<ProfilesLikedMe> profilesLikedMe();
   Future<bool> likeProfile(String profileId);
   Future<bool> unlikeProfile(String profileId);
   Future<bool> favoriteProfile(String profileId);
@@ -136,6 +138,7 @@ class ProfileDB extends ProfileApiCalls {
     }
     try {
       final response = await dio.post('${url.addFavouriteProfile}/$profileId');
+      print(response);
       return response.statusCode == 200;
     } catch (e) {
       print('Failed to favorite profile: $e');
@@ -151,6 +154,8 @@ class ProfileDB extends ProfileApiCalls {
     try {
       final response =
           await dio.delete('${url.removeFavouriteProfile}/$profileId');
+      print(response);
+
       return response.statusCode == 200;
     } catch (e) {
       print('Failed to unfavorite profile: $e');
@@ -187,5 +192,25 @@ class ProfileDB extends ProfileApiCalls {
     }
 
     await _sharedPref.setStringList(key, profiles);
+  }
+
+  @override
+  Future<ProfilesLikedMe> profilesLikedMe() async {
+    if (!_initialized) {
+      await _initialize();
+    }
+    try {
+      final result = await dio.get(url.profilesLikedMe);
+      if (result.data != null && result.statusCode == 200) {
+        final resultAsJson = jsonDecode(result.data);
+        final profiles = ProfilesLikedMe.fromJson(resultAsJson);
+        return profiles;
+      } else {
+        throw Exception('Failed to load profiles: ${result.statusCode}');
+      }
+    } catch (e) {
+      print(e);
+      throw Exception('Failed to load profiles');
+    }
   }
 }
