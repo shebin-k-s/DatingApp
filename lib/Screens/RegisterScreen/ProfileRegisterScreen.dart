@@ -9,7 +9,6 @@ import 'package:datingapp/widgets/GenderSelector.dart';
 import 'package:datingapp/widgets/TopSnackBarMessage.dart';
 import 'package:double_back_to_close/double_back_to_close.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 

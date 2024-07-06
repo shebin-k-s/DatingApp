@@ -1,5 +1,6 @@
 import 'package:datingapp/Screens/MainScreen/HomeScreen/HomeScreen.dart';
 import 'package:datingapp/Screens/MainScreen/MatchScreen/MatchScreen.dart';
+import 'package:datingapp/Screens/MainScreen/MessageScreen/MessageScreen.dart';
 import 'package:datingapp/Screens/MainScreen/ProfileScreen/ProfileScreen.dart';
 import 'package:datingapp/widgets/ActionButton.dart';
 import 'package:flutter/material.dart';
@@ -52,7 +53,7 @@ final List<ScreenModel> screens = [
     ],
   ),
   ScreenModel(
-    screen: Homescreen(),
+    screen: MessageScreen(),
     title: 'Messages',
     actions: [
       ActionButton(

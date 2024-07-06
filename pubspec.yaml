@@ -47,6 +47,8 @@ dependencies:
   double_back_to_close: ^2.0.0
   flutter_svg:
   image_picker: ^1.1.2
+  socket_io_client: ^3.0.0-beta.2
+  emoji_picker_flutter: ^2.2.0
 
 dev_dependencies:
   flutter_test:

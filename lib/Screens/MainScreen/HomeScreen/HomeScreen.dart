@@ -2,7 +2,6 @@ import 'package:datingapp/Screens/MainScreen/ScreenModel/ScreenModel.dart';
 import 'package:datingapp/api/Url.dart';
 import 'package:datingapp/api/data/profiles.dart';
 import 'package:datingapp/api/models/search_profiles/profile.dart';
-import 'package:datingapp/main.dart';
 import 'package:datingapp/widgets/FilterBottomSheet.dart';
 import 'package:datingapp/widgets/ProfileActionButton.dart';
 import 'package:flutter/material.dart';
@@ -45,7 +44,9 @@ class Homescreen extends StatelessWidget {
       favouriteProfilesIdNotifier.value =
           await profileDB.getListFromSharedPreferences('FAVOURITEPROFILES');
 
-      _fetchProfiles();
+      if (_profilesNotifier.value.isEmpty) {
+        _fetchProfiles();
+      }
     });
 
     return ValueListenableBuilder<List<Profile>>(

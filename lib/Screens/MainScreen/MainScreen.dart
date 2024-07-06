@@ -9,7 +9,7 @@ import 'package:flutter/services.dart';
 class MainScreen extends StatelessWidget {
   MainScreen({super.key});
 
-  final ValueNotifier<int> selectedBottomIndex = ValueNotifier(1);
+  final ValueNotifier<int> selectedBottomIndex = ValueNotifier(2);
   bool isFirstPress = true;
 
   Future<bool> handleBackPress(BuildContext context) async {

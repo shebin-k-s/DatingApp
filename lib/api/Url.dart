@@ -1,5 +1,5 @@
 class Url {
-  String baseUrl = "http://172.16.34.24:3000/";
+  String baseUrl = "http://192.168.229.24:3000/";
 
   // Authentication
   String sendOTP = "api/v1/auth/sendOTP";

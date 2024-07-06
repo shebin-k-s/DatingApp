@@ -9,7 +9,8 @@ class ProfilesLikedMe {
 
   ProfilesLikedMe({this.profilesLikedMe});
 
-  factory ProfilesLikedMe.fromJson(Map<String, dynamic> json) => _$ProfilesLikedMeFromJson(json);
+  factory ProfilesLikedMe.fromJson(Map<String, dynamic> json) =>
+      _$ProfilesLikedMeFromJson(json);
 
   Map<String, dynamic> toJson() => _$ProfilesLikedMeToJson(this);
 }

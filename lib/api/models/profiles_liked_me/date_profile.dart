@@ -10,7 +10,8 @@ class DateProfile {
 
   DateProfile({this.date, this.profiles});
 
-  factory DateProfile.fromJson(Map<String, dynamic> json) => _$DateProfileFromJson(json);
+  factory DateProfile.fromJson(Map<String, dynamic> json) =>
+      _$DateProfileFromJson(json);
 
   Map<String, dynamic> toJson() => _$DateProfileToJson(this);
 }

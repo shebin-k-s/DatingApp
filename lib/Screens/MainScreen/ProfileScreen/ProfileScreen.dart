@@ -14,7 +14,8 @@ class Profilescreen extends StatelessWidget {
           final _sharedPref = await SharedPreferences.getInstance();
           _sharedPref.clear();
           Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (ctx) => Onboardingscreen()), (route) => false);
+              MaterialPageRoute(builder: (ctx) => Onboardingscreen()),
+              (route) => false);
         },
         child: const Text(
           "Logout",
