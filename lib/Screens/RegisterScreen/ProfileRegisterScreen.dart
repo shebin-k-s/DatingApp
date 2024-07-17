@@ -3,13 +3,13 @@ import 'dart:io';
 import 'package:datingapp/Screens/RegisterScreen/InterestScreen.dart';
 import 'package:datingapp/api/data/Auth.dart';
 import 'package:datingapp/api/models/user_model/user_model.dart';
+import 'package:datingapp/utils/FileImagePicker.dart';
 import 'package:datingapp/widgets/CalenderBottomSheet.dart';
 import 'package:datingapp/widgets/CustomAppBar.dart';
 import 'package:datingapp/widgets/GenderSelector.dart';
 import 'package:datingapp/widgets/TopSnackBarMessage.dart';
 import 'package:double_back_to_close/double_back_to_close.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 class ProfileRegisterScreen extends StatelessWidget {
@@ -24,28 +24,7 @@ class ProfileRegisterScreen extends StatelessWidget {
   ProfileRegisterScreen({super.key});
   bool isFirstPress = true;
   final ValueNotifier<File?> _imageNotifier = ValueNotifier<File?>(null);
-  final ImagePicker _picker = ImagePicker();
   String? imgUrl = '';
-
-  Future<void> getImage(BuildContext context) async {
-    try {
-      final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-      if (pickedFile != null) {
-        _imageNotifier.value = File(pickedFile.path);
-
-        imgUrl = await AuthDB().uploadImage(_imageNotifier.value!);
-      } else {
-        print('No image selected.');
-      }
-    } catch (e) {
-      print('Error picking image: $e');
-      TopSnackBarMessage(
-        context: context,
-        message: 'Failed to upload image',
-        type: ContentType.error,
-      );
-    }
-  }
 
   Future<bool> handleBackPress(BuildContext context) async {
     if (isFirstPress) {
@@ -105,7 +84,13 @@ class ProfileRegisterScreen extends StatelessWidget {
                         CircleAvatar(
                           radius: 50,
                           child: GestureDetector(
-                            onTap: () => getImage(context),
+                            onTap: () => FileImagePicker(
+                              context,
+                              (image) async {
+                                _imageNotifier.value = image;
+                                imgUrl = await AuthDB().uploadImage(image);
+                              },
+                            ),
                             child: ClipOval(
                               child: ValueListenableBuilder<File?>(
                                 valueListenable: _imageNotifier,

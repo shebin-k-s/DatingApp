@@ -1,3 +1,4 @@
+import 'package:datingapp/Screens/MainScreen/HomeScreen/ProfileScreen.dart';
 import 'package:datingapp/Screens/MainScreen/ScreenModel/ScreenModel.dart';
 import 'package:datingapp/api/Url.dart';
 import 'package:datingapp/api/data/profiles.dart';
@@ -49,23 +50,23 @@ class Homescreen extends StatelessWidget {
       }
     });
 
-    return ValueListenableBuilder<List<Profile>>(
-      valueListenable: _profilesNotifier,
-      builder: (context, profiles, child) {
-        if (isLoading && profiles.isEmpty) {
-          return const Center(
-            child: CircularProgressIndicator(
-              color: Colors.red,
-            ),
-          );
-        } else if (profiles.isNotEmpty) {
-          int itemCount = hasNextPage ? profiles.length + 1 : profiles.length;
-          return RefreshIndicator(
-            onRefresh: () async {
-              hasNextPage = true;
-              await _fetchProfiles(isRefresh: true);
-            },
-            child: ListView.builder(
+    return RefreshIndicator(
+      onRefresh: () async {
+        hasNextPage = true;
+        await _fetchProfiles(isRefresh: true);
+      },
+      child: ValueListenableBuilder<List<Profile>>(
+        valueListenable: _profilesNotifier,
+        builder: (context, profiles, child) {
+          if (isLoading && profiles.isEmpty) {
+            return const Center(
+              child: CircularProgressIndicator(
+                color: Colors.red,
+              ),
+            );
+          } else if (profiles.isNotEmpty) {
+            int itemCount = hasNextPage ? profiles.length + 1 : profiles.length;
+            return ListView.builder(
               physics: const AlwaysScrollableScrollPhysics(),
               controller: _scrollController,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
@@ -86,6 +87,7 @@ class Homescreen extends StatelessWidget {
                                 favouriteProfilesId.contains(profile.id);
                             return ProfileCard(
                               id: profile.id ?? '',
+                              bio: profile.bio,
                               name: profile.username ?? 'Username',
                               isLiked: isLiked,
                               isFavourite: isFavourite,
@@ -154,32 +156,32 @@ class Homescreen extends StatelessWidget {
                   );
                 }
               },
-            ),
-          );
-        } else {
-          return const Center(
-            child: Text(
-              'No Profiles found',
-              style: TextStyle(
-                  fontSize: 20,
-                  color: Color(0xffE94057),
-                  fontWeight: FontWeight.bold),
-            ),
-          );
-        }
-      },
+            );
+          } else {
+            return const Center(
+              child: Text(
+                'No Profiles found',
+                style: TextStyle(
+                    fontSize: 20,
+                    color: Color(0xffE94057),
+                    fontWeight: FontWeight.bold),
+              ),
+            );
+          }
+        },
+      ),
     );
   }
 
   Future<void> _fetchProfiles({isRefresh = false}) async {
-    isLoading = true;
     if (hasNextPage) {
+      isLoading = true;
       try {
         if (isRefresh) {
           currentPage = 1;
           _profilesNotifier.value = [];
         }
-        const maxRetries = 10;
+        const maxRetries = 1;
         int retryCount = 0;
         bool retry = true;
         while (retry && retryCount < maxRetries) {
@@ -276,6 +278,7 @@ class ProfileCard extends StatelessWidget {
   final String distance;
   final bool isLiked;
   final bool isFavourite;
+  final String bio;
   final VoidCallback onLikePress;
   final VoidCallback onFavouritePress;
   const ProfileCard({
@@ -290,6 +293,7 @@ class ProfileCard extends StatelessWidget {
     required this.id,
     required this.onLikePress,
     required this.onFavouritePress,
+    required this.bio,
   });
 
   @override
@@ -299,7 +303,21 @@ class ProfileCard extends StatelessWidget {
         final RenderBox box = context.findRenderObject() as RenderBox;
         final localPosition = box.globalToLocal(details.globalPosition);
         if (localPosition.dy < box.size.height * 0.6) {
-          print('here');
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (ctx) => ProfileScreen(
+                id: id,
+                age: age,
+                bio: bio,
+                distance: distance,
+                isFavourite: isFavourite,
+                isLiked: isLiked,
+                location: address,
+                profilePic: imageUrl,
+                username: name,
+              ),
+            ),
+          );
         }
       },
       onDoubleTap: () {},
@@ -322,7 +340,15 @@ class ProfileCard extends StatelessWidget {
                   return const Center(child: CircularProgressIndicator());
                 },
                 errorBuilder: (context, error, stackTrace) {
-                  return const Center(child: Icon(Icons.error));
+                  return Container(
+                    width: double.infinity,
+                    color: Colors.grey[300],
+                    child: const Icon(
+                      Icons.person,
+                      size: 100,
+                      color: Colors.grey,
+                    ),
+                  );
                 },
               ),
 
@@ -351,11 +377,16 @@ class ProfileCard extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              address,
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.8),
-                                fontSize: 18,
+                            Container(
+                              width: 170,
+                              child: Text(
+                                address,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.8),
+                                  fontSize: 18,
+                                ),
                               ),
                             ),
                             ProfileActionButton(
@@ -368,7 +399,7 @@ class ProfileCard extends StatelessWidget {
                             ProfileActionButton(
                               icon:
                                   isFavourite ? Icons.star : Icons.star_border,
-                              color: isFavourite ? Colors.amber : Colors.white,
+                              color: isFavourite ? Colors.purple : Colors.white,
                               onPressed: onFavouritePress,
                             ),
                           ],

@@ -63,7 +63,7 @@ final List<ScreenModel> screens = [
     ],
   ),
   ScreenModel(
-    screen: Profilescreen(),
+    screen: ProfileScreen(),
     title: 'Profile',
   ),
 ];

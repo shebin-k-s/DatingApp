@@ -1,5 +1,5 @@
 class Url {
-  String baseUrl = "http://192.168.229.24:3000/";
+  String baseUrl = "http://192.168.58.24:3000/";
 
   // Authentication
   String sendOTP = "api/v1/auth/sendOTP";
@@ -15,8 +15,7 @@ class Url {
   String conversation = "api/v1/message/conversation";
 
   // Profile
-  String getMyProfile = "api/v1/profile";
-  String getUser = "api/v1/profile/getProfile";
+  String getProfile = "api/v1/profile/getProfile";
   String likeProfile = "api/v1/profile/like";
   String unlikeProfile = "api/v1/profile/unlike";
   String getLikedProfiles = "api/v1/profile/likedProfiles";

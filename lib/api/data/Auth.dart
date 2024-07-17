@@ -9,6 +9,7 @@ abstract class AuthApiCalls {
   Future<int> sendOTP(String email, String phoneNumber, bool forLogin);
   Future<int> verifyOTP(String otp);
   Future<int> registerUser(UserModel user);
+  Future<String?> uploadImage(File image);
 }
 
 class AuthDB extends AuthApiCalls {
@@ -42,7 +43,7 @@ class AuthDB extends AuthApiCalls {
     await _sharedPrefs.setString(key, value);
   }
 
-  Future<void> _saveUserData(UserModel user) async {
+  Future<void> saveUserData(UserModel user) async {
     await _ensureInitialized();
     final userJson = user.toJson();
     for (var entry in userJson.entries) {
@@ -108,7 +109,7 @@ class AuthDB extends AuthApiCalls {
         }
         if (responseData['user'] != null) {
           final user = UserModel.fromJson(responseData['user']);
-          await _saveUserData(user);
+          await saveUserData(user);
           await displayAllSharedPreferences();
         }
       }
@@ -138,7 +139,7 @@ class AuthDB extends AuthApiCalls {
         await _setSharedPref('TOKEN', responseData['token']);
 
         final registeredUser = UserModel.fromJson(responseData['user']);
-        await _saveUserData(registeredUser);
+        await saveUserData(registeredUser);
       }
       await displayAllSharedPreferences();
 
@@ -183,7 +184,7 @@ class AuthDB extends AuthApiCalls {
     for (String key in keys) {
       print(key);
       var value = _sharedPrefs.get(key);
-      print(value);
+      // print(value);
 
       if (value is String) {
         try {
@@ -196,9 +197,9 @@ class AuthDB extends AuthApiCalls {
       allPrefs[key] = value;
     }
 
-    print('SharedPreferences contents:');
-    allPrefs.forEach((key, value) {
-      print('$key: $value');
-    });
+    // print('SharedPreferences contents:');
+    // allPrefs.forEach((key, value) {
+    //   print('$key: $value');
+    // });
   }
 }

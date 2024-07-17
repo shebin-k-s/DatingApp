@@ -52,7 +52,6 @@ class MessageScreen extends StatelessWidget {
             child: ValueListenableBuilder(
               valueListenable: messagedProfilesNotifier,
               builder: (context, value, child) {
-                print(value.messagedProfiles);
                 if (value.messagedProfiles != null &&
                     value.messagedProfiles!.isNotEmpty) {
                   return ListView.separated(
@@ -62,13 +61,13 @@ class MessageScreen extends StatelessWidget {
                       final time =
                           timeAgo(messagedProfile.latestMessageSendAt!);
                       return _buildMessageTile(
-                        messagedProfile.profile!.username ?? 'username',
-                        messagedProfile.profile!.profilePic ?? '',
-                        messagedProfile.latestMessage ?? 'message',
-                        messagedProfile.messageStatus ?? '',
-                        time,
-                        messagedProfile.unreadCount ?? 0,
-                        () => Navigator.of(context).push(
+                          messagedProfile.profile!.username ?? 'username',
+                          messagedProfile.profile!.profilePic ?? '',
+                          messagedProfile.latestMessage ?? 'message',
+                          messagedProfile.messageStatus ?? '',
+                          time,
+                          messagedProfile.unreadCount ?? 0, () async {
+                        await Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (ctx) => ChatScreen(
                               profileId: messagedProfile.profile!.id ?? '',
@@ -78,8 +77,9 @@ class MessageScreen extends StatelessWidget {
                                   'Username',
                             ),
                           ),
-                        ),
-                      );
+                        );
+                        _fetchMessagedProfiles();
+                      });
                     },
                     separatorBuilder: (context, index) {
                       return const Padding(
@@ -87,6 +87,12 @@ class MessageScreen extends StatelessWidget {
                         child: Divider(),
                       );
                     },
+                  );
+                } else if (isLoading) {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: Colors.red,
+                    ),
                   );
                 } else {
                   return const Center(
@@ -133,8 +139,15 @@ class MessageScreen extends StatelessWidget {
     }
   }
 
-  Widget _buildMessageTile(String name, String profilePic, String message,
-      String messageStatus, String time, int unreadCount, Function onClick) {
+  Widget _buildMessageTile(
+    String name,
+    String profilePic,
+    String message,
+    String messageStatus,
+    String time,
+    int unreadCount,
+    Function onClick,
+  ) {
     return Row(
       children: [
         CircleAvatar(

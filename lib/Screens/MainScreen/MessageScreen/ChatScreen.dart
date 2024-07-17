@@ -117,7 +117,6 @@ class _ChatScreenState extends State<ChatScreen> {
           retry = false;
           try {
             final chat = await ProfileDB().sendMessage(widget.profileId, msg);
-            await Future.delayed(const Duration(milliseconds: 5000));
             setState(() {
               _updateOrReplaceMessage(tempId, chat);
             });
@@ -150,7 +149,6 @@ class _ChatScreenState extends State<ChatScreen> {
     bool dateExists = false;
     for (var conv in messages.conversation!) {
       if (conv.date == messageDate) {
-        print('sss ${conv.date}');
         conv.messages!.add(newMessage);
         dateExists = true;
         break;

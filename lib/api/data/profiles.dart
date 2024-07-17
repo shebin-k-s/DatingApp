@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'package:datingapp/api/Url.dart';
+import 'package:datingapp/api/data/Auth.dart';
 import 'package:datingapp/api/models/chat_model/chat_model.dart';
 import 'package:datingapp/api/models/chat_model/message.dart';
 import 'package:datingapp/api/models/messaged_profiles/messaged_profiles.dart';
 import 'package:datingapp/api/models/profiles_liked_me/profiles_liked_me.dart';
 import 'package:datingapp/api/models/search_profiles/search_profiles.dart';
+import 'package:datingapp/api/models/user_model/user_model.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -18,6 +20,7 @@ abstract class ProfileApiCalls {
     int? page,
     int? limit,
   );
+  Future<UserModel> getProfiles(String profileId);
   Future<ProfilesLikedMe> profilesLikedMe();
   Future<MessagedProfiles> getMessagedProfiles();
   Future<Message> sendMessage(String profileId, String message);
@@ -26,6 +29,8 @@ abstract class ProfileApiCalls {
   Future<bool> unlikeProfile(String profileId);
   Future<bool> favoriteProfile(String profileId);
   Future<bool> unfavoriteProfile(String profileId);
+
+  Future<int> editProfile(UserModel updatedUser);
 }
 
 class ProfileDB extends ProfileApiCalls {
@@ -284,6 +289,64 @@ class ProfileDB extends ProfileApiCalls {
     } catch (e) {
       print(e);
       throw Exception('Failed to send message');
+    }
+  }
+
+  @override
+  Future<UserModel> getProfiles(String profileId) async {
+    if (!_initialized) {
+      await _initialize();
+    }
+    try {
+      final result = await dio.get(
+        '${url.getProfile}/${profileId}',
+      );
+      if (result.data != null && result.statusCode == 200) {
+        final resultAsJson = jsonDecode(result.data);
+        final profile = UserModel.fromJson(resultAsJson);
+        return profile;
+      } else {
+        throw Exception('Failed to load profile: ${result.statusCode}');
+      }
+    } catch (e) {
+      print(e);
+      throw Exception('Failed to load profile');
+    }
+  }
+
+  @override
+  Future<int> editProfile(UserModel updatedUser) async {
+    if (!_initialized) {
+      await _initialize();
+    }
+    try {
+      final response = await dio.put(
+        url.editProfile,
+        data: {
+          ...updatedUser.toJson(),
+        },
+      );
+      final sharedPref = await SharedPreferences.getInstance();
+      final responseData = jsonDecode(response.data);
+      print(response);
+      print("data : ${responseData}");
+      print("profile: ${responseData['profile']}");
+      await sharedPref.setString('MESSAGE', responseData['message']);
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.data);
+
+        final updatedUser = UserModel.fromJson(responseData['profile']);
+        print(responseData['profile']);
+        await AuthDB().saveUserData(updatedUser);
+      }
+
+      return response.statusCode ?? -1;
+    } on DioException catch (e) {
+      final sharedPref = await SharedPreferences.getInstance();
+      await sharedPref.setString('MESSAGE', 'Failed to upload');
+
+      return e.response?.statusCode ?? -1;
     }
   }
 }

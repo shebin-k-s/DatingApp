@@ -19,7 +19,7 @@ class UserModel {
   DateTime? createdAt;
   String? profilePic;
   String? bio;
-  String? phoneNUmber;
+  String? phoneNumber;
 
   UserModel({
     this.id,
@@ -36,7 +36,7 @@ class UserModel {
     this.createdAt,
     this.profilePic,
     this.bio,
-    this.phoneNUmber,
+    this.phoneNumber,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {

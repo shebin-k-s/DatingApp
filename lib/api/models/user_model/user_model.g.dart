@@ -33,7 +33,7 @@ UserModel _$UserModelFromJson(Map<String, dynamic> json) => UserModel(
           : DateTime.parse(json['createdAt'] as String),
       profilePic: json['profilePic'] as String?,
       bio: json['bio'] as String?,
-      phoneNUmber: json['phoneNUmber'] as String?,
+      phoneNumber: json['phoneNumber'] as String?,
     );
 
 Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
@@ -51,5 +51,5 @@ Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
       'createdAt': instance.createdAt?.toIso8601String(),
       'profilePic': instance.profilePic,
       'bio': instance.bio,
-      'phoneNUmber': instance.phoneNUmber,
+      'phoneNumber': instance.phoneNumber,
     };
