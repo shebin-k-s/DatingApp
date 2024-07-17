@@ -1,5 +1,5 @@
 class Url {
-  String baseUrl = "http://192.168.58.24:3000/";
+  String baseUrl = "http://datingappbackend-env.eba-43scwdym.ap-southeast-2.elasticbeanstalk.com/";
 
   // Authentication
   String sendOTP = "api/v1/auth/sendOTP";
