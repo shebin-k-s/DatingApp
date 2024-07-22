@@ -320,11 +320,12 @@ class ProfileDB extends ProfileApiCalls {
       await _initialize();
     }
     try {
+      final data = Map<String, dynamic>.from(updatedUser.toJson())
+        ..removeWhere((key, value) => value == null);
+
       final response = await dio.put(
         url.editProfile,
-        data: {
-          ...updatedUser.toJson(),
-        },
+        data: data,
       );
       final sharedPref = await SharedPreferences.getInstance();
       final responseData = jsonDecode(response.data);

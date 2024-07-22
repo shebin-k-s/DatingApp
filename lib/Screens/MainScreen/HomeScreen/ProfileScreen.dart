@@ -319,6 +319,10 @@ class ProfileScreen extends StatelessWidget {
                       print('here');
                       if (galleryImages == null) {
                         return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      } else if (galleryImages.isEmpty) {
+                        return const Center(
                           child: Padding(
                             padding: EdgeInsets.symmetric(vertical: 16),
                             child: Text(
@@ -327,10 +331,6 @@ class ProfileScreen extends StatelessWidget {
                                   fontSize: 16, fontWeight: FontWeight.bold),
                             ),
                           ),
-                        );
-                      } else if (galleryImages.isEmpty) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
                         );
                       } else {
                         return GridView.count(
