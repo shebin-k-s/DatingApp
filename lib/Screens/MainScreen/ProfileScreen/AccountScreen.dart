@@ -385,6 +385,14 @@ class AccountSettingsScreen extends StatelessWidget {
   Widget _buildSaveButton(BuildContext context) {
     return ElevatedButton(
       onPressed: () async {
+        if (areAllFieldsNull(updatedUser)) {
+          TopSnackBarMessage(
+            context: context,
+            message: 'No changes to save.',
+            type: ContentType.info,
+          );
+          return;
+        }
         int status = await ProfileDB().editProfile(updatedUser);
         if (status == 200) {
           updatedUser = UserModel();
@@ -401,5 +409,22 @@ class AccountSettingsScreen extends StatelessWidget {
       },
       child: const Text('Save Changes'),
     );
+  }
+
+  bool areAllFieldsNull(UserModel user) {
+    return user.username == null &&
+        user.email == null &&
+        user.gender == null &&
+        user.dateOfBirth == null &&
+        user.interests == null &&
+        user.photos == null &&
+        user.matches == null &&
+        user.likedProfiles == null &&
+        user.favouriteProfiles == null &&
+        user.address == null &&
+        user.createdAt == null &&
+        user.profilePic == null &&
+        user.bio == null &&
+        user.phoneNumber == null;
   }
 }
