@@ -250,6 +250,10 @@ class ProfileScreen extends StatelessWidget {
                     builder: (context, interests, child) {
                       if (interests == null) {
                         return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      } else if (interests.isEmpty) {
+                        return const Center(
                           child: Text(
                             "Nothing to Show",
                             style: TextStyle(
@@ -257,10 +261,6 @@ class ProfileScreen extends StatelessWidget {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                        );
-                      } else if (interests.isEmpty) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
                         );
                       } else {
                         return Wrap(

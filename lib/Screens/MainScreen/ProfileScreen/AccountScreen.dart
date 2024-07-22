@@ -27,6 +27,8 @@ class AccountSettingsScreen extends StatelessWidget {
   final ValueNotifier<String> phoneNumberNotifier = ValueNotifier('');
   final ValueNotifier<List<String>?> photosNotifier = ValueNotifier([]);
 
+  UserModel updatedUser = UserModel();
+
   Future<UserModel> loadUserData() async {
     final sharedPref = await SharedPreferences.getInstance();
     final user = UserModel(
@@ -203,6 +205,7 @@ class AccountSettingsScreen extends StatelessWidget {
                       final img = await AuthDB().uploadImage(image);
                       if (img != null) {
                         profilePicNotifier.value = img;
+                        updatedUser.profilePic = img;
                       } else {
                         TopSnackBarMessage(
                           context: context,
@@ -241,10 +244,13 @@ class AccountSettingsScreen extends StatelessWidget {
       onChanged: (value) {
         if (label == 'Username') {
           usernameNotifier.value = value;
+          updatedUser.username = value;
         } else if (label == 'Address') {
           addressNotifier.value = value;
+          updatedUser.address = value;
         } else if (label == 'Bio') {
           bioNotifier.value = value;
+          updatedUser.bio = value;
         }
       },
     );
@@ -260,6 +266,7 @@ class AccountSettingsScreen extends StatelessWidget {
           context: context,
           onGenderSelect: (gender) {
             genderNotifier.value = gender;
+            updatedUser.gender = gender;
           },
         );
       },
@@ -277,10 +284,12 @@ class AccountSettingsScreen extends StatelessWidget {
       leading: const Icon(Icons.calendar_today),
       onTap: () async {
         CalendarBottomSheet(
-          context: context,
-          initialDate: dateOfBirth ?? DateTime.now(),
-          onDateSelected: (date) => dateOfBirthNotifier.value = date,
-        );
+            context: context,
+            initialDate: dateOfBirth ?? DateTime.now(),
+            onDateSelected: (date) {
+              dateOfBirthNotifier.value = date;
+              updatedUser.dateOfBirth = date;
+            });
       },
     );
   }
@@ -336,6 +345,8 @@ class AccountSettingsScreen extends StatelessWidget {
                         ...?photosNotifier.value,
                         uploadedImg
                       ];
+                      updatedUser.photos ??= [];
+                      updatedUser.photos!.add(uploadedImg);
                     } else {
                       TopSnackBarMessage(
                         context: context,
@@ -374,15 +385,10 @@ class AccountSettingsScreen extends StatelessWidget {
   Widget _buildSaveButton(BuildContext context) {
     return ElevatedButton(
       onPressed: () async {
-        final updatedUser = UserModel(
-            address: addressNotifier.value,
-            bio: bioNotifier.value,
-            profilePic: profilePicNotifier.value,
-            username: usernameNotifier.value,
-            gender: genderNotifier.value,
-            dateOfBirth: dateOfBirthNotifier.value,
-            photos: photosNotifier.value);
         int status = await ProfileDB().editProfile(updatedUser);
+        if (status == 200) {
+          updatedUser = UserModel();
+        }
         final sharedPref = await SharedPreferences.getInstance();
         final message = sharedPref.getString('MESSAGE');
         if (message != null) {
