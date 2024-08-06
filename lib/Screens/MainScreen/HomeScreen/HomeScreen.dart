@@ -109,8 +109,6 @@ class Homescreen extends StatelessWidget {
                                 } else {
                                   likedIds.add(profile.id!);
                                   likedProfilesIdNotifier.value = likedIds;
-                                  favouriteProfilesIdNotifier.value
-                                      .remove(profile.id);
                                   status = await profileDB
                                       .likeProfile(profile.id ?? '');
                                 }
